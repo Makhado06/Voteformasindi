@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>Location Demo</title></head>
+<body>
+  <h2>Share your location for demo:</h2>
+  <button onclick="getLocation()">Get Precise Location</button>
+  <p id="result"></p>
+  <script>
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition, showError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    } else {
+      document.getElementById("result").innerHTML = "Geolocation not supported.";
+    }
+  }
+  function showPosition(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    document.getElementById("result").innerHTML = `Lat: ${lat}, Lng: ${lng} (High accuracy: ${position.coords.accuracy}m)`;
+    // Reverse geocode
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`)
+      .then(r => r.json())
+      .then(data => {
+        const address = data.display_name || 'No address found';
+        document.getElementById("result").innerHTML += `<br>Address: ${address}`;
+        console.log('Location:', address); // View in browser console
+      }).catch(err => console.log('Geocode error:', err));
+  }
+  function showError(error) {
+    document.getElementById("result").innerHTML = "Error: " + error.message;
+  }
+  </script>
+</body>
+</html>
